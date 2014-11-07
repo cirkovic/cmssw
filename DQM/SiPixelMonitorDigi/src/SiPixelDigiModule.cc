@@ -353,58 +353,33 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, const edm
       int DBlayer = 0;
       int DBmodule =0;
       
-      if (!isUpgrade) {
       PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(id_),pTT,isUpgrade).shell();
-        DBlayer  = PixelBarrelName(DetId(id_),pTT,isUpgrade).layerName();
-        DBmodule = PixelBarrelName(DetId(id_),pTT,isUpgrade).moduleName();
+      DBlayer  = PixelBarrelName(DetId(id_),pTT,isUpgrade).layerName();
+      DBmodule = PixelBarrelName(DetId(id_),pTT,isUpgrade).moduleName();
+      int noOfLayers = chanBarrelL.size();
       if(barrel){
-        if(isHalfModule){
-          if(DBshell==PixelBarrelName::pI||DBshell==PixelBarrelName::pO){
-	    numberOfDigis[0]++; nDigisA++;
-	    if(DBlayer==1) numberOfDigis[2]++;
-	    if(DBlayer==2) numberOfDigis[3]++;
-	    if(DBlayer==3) numberOfDigis[4]++;
-	  }
-          if(DBshell==PixelBarrelName::mI||DBshell==PixelBarrelName::mO){
-	    numberOfDigis[1]++; nDigisB++;
-	    if(DBlayer==1) numberOfDigis[5]++;
-	    if(DBlayer==2) numberOfDigis[6]++;
-	    if(DBlayer==3) numberOfDigis[7]++;
-	  }
-        }else{
-          if(row<80){
-	    numberOfDigis[0]++; nDigisA++;
-	    if(DBlayer==1) numberOfDigis[2]++;
-	    if(DBlayer==2) numberOfDigis[3]++;
-	    if(DBlayer==3) numberOfDigis[4]++;
-	  }else{ 
-	    numberOfDigis[1]++; nDigisB++;
-	    if(DBlayer==1) numberOfDigis[5]++;
-	    if(DBlayer==2) numberOfDigis[6]++;
-	    if(DBlayer==3) numberOfDigis[7]++;
-	  }
+        if(isHalfModule && !isUpgrade) {
+          if(DBshell==PixelBarrelName::pI||DBshell==PixelBarrelName::pO) numberOfDigis[0]++, nDigisA++;
+          if(DBshell==PixelBarrelName::mI||DBshell==PixelBarrelName::mO) numberOfDigis[1]++, nDigisB++;
+          for (int layer = 1; layer <= noOfLayers; layer++) {
+            if(DBlayer==layer) {
+              if(DBshell==PixelBarrelName::pI||DBshell==PixelBarrelName::pO) numberOfDigis[layer+1]++;
+              if(DBshell==PixelBarrelName::mI||DBshell==PixelBarrelName::mO) numberOfDigis[layer+1+noOfLayers]++;
+            }
+          }
+        }
+        else {
+          if(row<80) numberOfDigis[0]++, nDigisA++;
+          else       numberOfDigis[1]++, nDigisB++;
+          for (int layer = 1; layer <= noOfLayers; layer++) {
+            if (DBlayer==layer) {
+              if(row<80) numberOfDigis[layer+1]++;
+              else       numberOfDigis[layer+1+noOfLayers]++;
+            }
+          }
         }
       }
-      } else if (isUpgrade) {
-        DBlayer  = PixelBarrelName(DetId(id_),pTT,isUpgrade).layerName();
-        DBmodule = PixelBarrelName(DetId(id_),pTT,isUpgrade).moduleName();
-	if(barrel){
-	  if(row<80){
-	    numberOfDigis[0]++; nDigisA++;
-	    if(DBlayer==1) numberOfDigis[2]++;
-	    if(DBlayer==2) numberOfDigis[3]++;
-	    if(DBlayer==3) numberOfDigis[4]++;
-	    if(DBlayer==4) numberOfDigis[5]++;
-	  }else{ 
-	    numberOfDigis[1]++; nDigisB++;
-	    if(DBlayer==1) numberOfDigis[6]++;
-	    if(DBlayer==2) numberOfDigis[7]++;
-	    if(DBlayer==3) numberOfDigis[8]++;
-	    if(DBlayer==4) numberOfDigis[9]++;
-	  }
-	}
-      }
-      
+
       if(modon){
 	if(!reducedSet){
 	  if(twoD) {
