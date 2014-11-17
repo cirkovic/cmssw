@@ -358,7 +358,7 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, const edm
       DBmodule = PixelBarrelName(DetId(id_),pTT,isUpgrade).moduleName();
       int noOfLayers = chanBarrelL.size();
       if(barrel){
-        if(isHalfModule && !isUpgrade) {
+        if(isHalfModule) {
           if(DBshell==PixelBarrelName::pI||DBshell==PixelBarrelName::pO) numberOfDigis[0]++, nDigisA++;
           if(DBshell==PixelBarrelName::mI||DBshell==PixelBarrelName::mO) numberOfDigis[1]++, nDigisB++;
           for (int layer = 1; layer <= noOfLayers; layer++) {
