@@ -36,7 +36,6 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 //
 // Constructors
 //
@@ -66,9 +65,8 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 //
 void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, DQMStore::IBooker & iBooker, int type, bool twoD, bool reducedSet, bool isUpgrade) {
   
-  edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology *pTT = tTopoHandle.product();
+  pTT = tTopoHandle.product();
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -470,7 +468,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, const edm::Eve
 // Fill histograms
 //
 int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker,std::vector<MonitorElement*>& layers,std::vector<MonitorElement*>& diskspz,std::vector<MonitorElement*>& disksmz,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool smileyon, bool isUpgrade) {
-  
+
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   
@@ -504,20 +502,34 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
       GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
 
       if(barrel){
+   uint32_t DBlayer = PixelBarrelName(DetId(id_), pTT, isUpgrade).layerName();
    for (std::vector<MonitorElement*>::iterator i = layers.begin(); i != layers.end(); i++)
    {
-     (*i)->Fill(clustgp.z(),clustgp.phi());
+     if (DBlayer == i - layers.begin() + 1)
+     {
+        (*i)->Fill(clustgp.z(),clustgp.phi());
+        break;
+     }
    }
       }else if(endcap){
+   uint32_t DBdisk = PixelEndcapName(DetId(id_), pTT, isUpgrade).diskName();
 	if(clustgp.z()>0){
      for (std::vector<MonitorElement*>::iterator i = diskspz.begin(); i != diskspz.end(); i++)
      {
-       (*i)->Fill(clustgp.x(),clustgp.y());
+       if (DBdisk == i - diskspz.begin() + 1)
+       {
+         (*i)->Fill(clustgp.x(),clustgp.y());
+         break;
+       }
      }
 	}else{
      for (std::vector<MonitorElement*>::iterator i = disksmz.begin(); i != disksmz.end(); i++)
      {
-       (*i)->Fill(clustgp.x(),clustgp.y());
+       if (DBdisk == i - disksmz.begin() + 1)
+       {
+          (*i)->Fill(clustgp.x(),clustgp.y());
+          break;
+       }
      }
 	} 
       }
