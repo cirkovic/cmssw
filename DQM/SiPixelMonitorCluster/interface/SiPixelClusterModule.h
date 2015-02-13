@@ -74,7 +74,6 @@ class SiPixelClusterModule {
   
  private:
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
   const TrackerTopology *pTT;
 
   uint32_t id_;
